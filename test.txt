@@ -1,0 +1,3 @@
+(dog:20, (elephant:30, horse:60):20):50;
+(((One:0.2,Two:0.3):0.3,(Three:0.5,Four:0.3):0.2):0.3,Five:0.7):0.0;
+(ant:17, (bat:31, cow:22):25, dog:22, (elk:33, fox:12:40);
