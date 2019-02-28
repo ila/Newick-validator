@@ -2,19 +2,14 @@
 # -*- coding: utf-8 -*-
 
 # Newick format validator
-# run with python3 Newick_Validator.py [input-file]
-
+# imported in CLI.py
 
 # imports
-from sys import argv, exit
-from Bio import Phylo
-from io import StringIO
-from re import split, search
+from re import split
 
 
 # returns true if the given input is a number
 def is_number(string):
-
     try:
         float(string)
         return True
@@ -46,7 +41,6 @@ def find_branch(parsed_tokens):
 # tree -> subtree [label] [: length] ";"
 # tree -> subtree ";" | branch ";"
 def parse_tree(parsed_tokens):
-
     if is_number(parsed_tokens[-1]):
         # found a branch with length
         return parse_branch(parsed_tokens)
@@ -57,7 +51,6 @@ def parse_tree(parsed_tokens):
 
 # subtree -> leaf | internal
 def parse_subtree(parsed_tokens):
-
     try:
         if parsed_tokens[0] == '(':
 
@@ -95,10 +88,6 @@ def parse_subtree(parsed_tokens):
 # name --> empty | string
 def parse_name(name):
 
-    if is_number(name):
-        print("Error found while parsing: %s" % name)
-        return False
-
     # checking whether a string contains a space
     if ' ' in name:
         print("Error: space in %s." % name)
@@ -119,17 +108,11 @@ def parse_name(name):
         print("Error: semicolon in %s." % name)
         return False
 
-    # checking whether a string contains a number
-    if search(r'[0-9]', name):
-        print("Error: number in %s." % name)
-        return False
-
     return True
 
 
 # branchset --> branch | branch "," branchset
 def parse_branchset(parsed_tokens):
-
     comma = find_branch(parsed_tokens)
 
     if comma is None:
@@ -141,12 +124,14 @@ def parse_branchset(parsed_tokens):
 
         if parse_branch(parsed_tokens[0:comma]):
             # successful parsing
-            return parse_branchset(parsed_tokens[comma+1:])
+            return parse_branchset(parsed_tokens[comma + 1:])
+
+        else:
+            return False
 
 
 # branch --> subtree length
 def parse_branch(parsed_tokens):
-
     # empty branch
     if not parsed_tokens:
         return True
@@ -159,8 +144,7 @@ def parse_branch(parsed_tokens):
             # label or subtree are not empty
             if parsed_tokens[:-2]:
                 subtree_ok = parse_subtree(parsed_tokens[:-2])
-                return length_ok \
-                       and subtree_ok
+                return length_ok and subtree_ok
 
             else:
                 return length_ok
@@ -174,7 +158,6 @@ def parse_branch(parsed_tokens):
 
 # length --> empty | ":" number
 def parse_length(number):
-
     if is_number(number):
         return True
 
@@ -184,7 +167,6 @@ def parse_length(number):
 
 # internal --> "(" branchset ")" name
 def parse_internal(parsed_tokens):
-
     if parsed_tokens[-1] != ')':
         # name is not empty
         name_ok = parse_name(parsed_tokens[-1])
@@ -201,12 +183,12 @@ def parse_internal(parsed_tokens):
 
 # first function performing the initial controls
 def is_newick(tree):
-
     # dividing the string into tokens, to check them singularly
-    tokens = split(r'([A-Za-z]+[^A-Za-z0-9,)]+[A-Za-z]+|[0-9. ]+|[A-za-z]+|\(|\)|;|:|,)', tree)
+    tokens = split(r'([A-Za-z]+[^A-Za-z,)]+[A-Za-z]+|[0-9.]*[A-Za-z]+[0-9.]+|[0-9.]+\s+[0-9.]+|[0-9.]+|[A-za-z]+|\(|\)|;|:|,)', tree)
 
     # removing spaces and empty strings (spaces within labels are still present)
-    parsed_tokens = list(filter(lambda x: not(x.isspace() or not x), tokens))
+    parsed_tokens = list(filter(lambda x: not (x.isspace() or not x), tokens))
+    print(parsed_tokens)
 
     # checking whether the tree ends with ;
     if parsed_tokens[-1] != ';':
@@ -217,45 +199,3 @@ def is_newick(tree):
     else:
         del parsed_tokens[-1]
         return parse_tree(parsed_tokens)
-
-
-# read a file to a string
-try:
-    with open(argv[1], 'r') as file:
-        content = file.read()  # string
-        # file.close()
-
-except (OSError, IndexError, UnicodeDecodeError):
-    print("File not found or wrong file format!")
-    exit()
-    # interrupts the execution if there are any issues with the file
-
-# \n tree separator
-forest = content.split("\n")
-
-# calls function on each tree
-for i in forest:
-
-    if not i or i.isspace():
-        print("\nFound an empty string.")
-
-    else:
-        print("\nParsing %s" % i)
-        newick = is_newick(i)
-
-        if newick:
-            print("\nFound a tree: \n%s\n" % i)
-
-            try:
-                t = Phylo.read(StringIO(i), "newick")
-                Phylo.draw_ascii(t)
-                # empty labels as clade
-
-                # Phylo.draw(t)
-
-            except Exception as e:
-                print("\nSomething went wrong, tree unrecognised by Pyhlo. ")
-                print("Exception: %s" % e)
-
-        else:
-            print("\nNot a valid Newick tree: \n%s\n" % i)

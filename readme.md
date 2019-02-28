@@ -77,22 +77,27 @@ Tabs are ignored and correctly parsed: there might be some issues displaying tre
 
 The Python validator takes a file as input (parameter, when running the program) and proceeds to read the whole content and split the trees using newlines.
 
-A regular expression is then used to split each string in tokens:
+All functions used to parse string are imported in the main file from a separated package.
+
+The main Python program is CLI.py, which includes the functions to read the textual file, split the content and then calls `newick_validator.is_newick()` on each string. After the latter returns a value, the tree is drawn on console.
+
+The library `newick_validator` groups all the methods to divide the tree in components according to grammar rules and recursively check the syntax.
+
+The first function, called on every string of the file, is `is_newick`. A regular expression is used to split each string in tokens:
 
 ```python
-tokens = split(r'([A-Za-z]+[^A-Za-z0-9,)]+[A-Za-z]+|[0-9. ]+|[A-za-z]+|\(|\)|;|:|,)', tree)
+tokens = split(r'([A-Za-z]+[^A-Za-z,)]+[A-Za-z]+|[0-9.]*[A-Za-z]+[0-9.]+|[0-9. ]+|[A-za-z]+|\(|\)|;|:|,)', tree)
 ```
 
 This is able to recognise:
 
-* Strings of at least two alphabetic characters with at least one special symbol (to find errors);
+* Strings of at least two alphabetic characters with at least one forbidden special symbol (to find errors);
+* Strings composed of alphabetic charachers, numbers and special symbols;
 * Alphabetic characters strings;
 * Numbers with dots;
 * Parentheses, colon, semicolon and comma.
 
-After that, the final semicolon is removed (if present) and the recursive calls begin, removing eventual parentheses. 
-
-The first function, called on every string of the file, is `newick`: after an initial parsing of the tree (whitespaces and last semicolon removal), it proceeds to check the tokens according to the grammal rules. Each call returns a boolean value which determines whether to continue parsing or stop because of an error.
+After that, the final semicolon and the spaces are removed (if present) and the recursive calls begin, deleting eventual parentheses surrounding internal nodes. Each call returns a boolean value which determines whether to continue parsing or stop because of an error.
 
 The `BranchSet → Branch | Branch "," BranchSet` rule is implemented finding the index of each external comma (outside all sets of parentheses) and splitting according to every index.
 
@@ -222,6 +227,8 @@ Not a valid Newick tree:
 
 
 ### Test examples
+
+A complete list of test examples can be found running `test.py`.
 
 ##### Working strings
 
