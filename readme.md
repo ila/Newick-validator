@@ -1,6 +1,6 @@
 # Newick format validator
 
-Given a textual file, the *Newick format validator* checks whether it respects the Newick notation and shows eventual deformities. The program has been written using Python.
+Given a textual file, the *Newick format validator* checks whether it respects the Newick notation and shows eventual deformities. The program has been written using Python: both 2.7 and 3 are compatible.
 
 Newick notation rules have been extracted by [Wikipedia](https://en.wikipedia.org/wiki/Newick_format) and [Phylip documentation](http://evolution.genetics.washington.edu/phylip/newick_doc.html).
 
