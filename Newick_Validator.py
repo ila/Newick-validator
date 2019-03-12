@@ -188,7 +188,6 @@ def is_newick(tree):
 
     # removing spaces and empty strings (spaces within labels are still present)
     parsed_tokens = list(filter(lambda x: not (x.isspace() or not x), tokens))
-    print(parsed_tokens)
 
     # checking whether the tree ends with ;
     if parsed_tokens[-1] != ';':
