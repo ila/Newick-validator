@@ -3,7 +3,7 @@
 
 # run with python3 test.py
 
-from newick_validator import is_newick
+from Newick_Validator import is_newick
 
 
 # coloring on Linux terminal [doesn't work on OSx]
