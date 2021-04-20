@@ -8,7 +8,7 @@ run with python3 cli.py [input-file]
 
 from io import StringIO
 from sys import argv
-from newick_validator import is_newick
+from Newick_Validator import is_newick
 from Bio import Phylo
 
 
